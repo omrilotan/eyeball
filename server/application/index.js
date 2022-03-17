@@ -1,5 +1,6 @@
 import express from 'express'
 import { router } from '../router/index.js'
+import { errorHandler } from '../middleware/errorHandler/index.js'
 
 export function application (props = {}) {
   const app = express()
@@ -17,5 +18,5 @@ export function application (props = {}) {
     ([key, value]) => app.set(key, value)
   )
 
-  return router(app)
+  return router(app).use(errorHandler)
 }
