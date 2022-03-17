@@ -13,9 +13,13 @@
     "type": "git",
     "url": "git+https://github.com/omrilotan/site-speed.git"
   },
+  "engines": {
+    "node": "16.x"
+  },
   "type": "module",
   "scripts": {
     "build": "node ./scripts/build/index.js",
+    "heroku-postbuild": "npm prune --production",
     "start": "node --experimental-json-modules .",
     "predev": "npm run build",
     "dev": "npm start",
