@@ -19,13 +19,11 @@
   "type": "module",
   "scripts": {
     "build": "node ./scripts/build/index.js",
-    "heroku-postbuild": "npm prune --production",
     "start": "node --experimental-json-modules .",
     "predev": "npm run build",
     "dev": "npm start",
     "format": "standard"
   },
-  "heroku-run-build-script": true,
   "dependencies": {
     "consigliere": "^0.1.0",
     "dotenv": "^16.0.0",
