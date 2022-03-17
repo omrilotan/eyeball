@@ -1,0 +1,35 @@
+{
+  "name": "site-speed",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Research website speed",
+  "keywords": [
+    "…👟"
+  ],
+  "author": "omrilotan <hi@omrilotan.com>",
+  "license": "UNLICENCE",
+  "homepage": "TBD",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/omrilotan/site-speed.git"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "node ./scripts/build/index.js",
+    "start": "node --experimental-json-modules .",
+    "predev": "npm run build",
+    "dev": "npm start",
+    "format": "standard"
+  },
+  "dependencies": {
+    "consigliere": "^0.1.0",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.17.7",
+    "@babel/plugin-transform-react-jsx": "^7.17.3",
+    "standard": "^16.0.4"
+  }
+}
