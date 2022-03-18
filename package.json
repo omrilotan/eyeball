@@ -25,10 +25,11 @@
     "format": "standard"
   },
   "dependencies": {
-    "consigliere": "^0.1.0",
+    "consigliere": "^0.2.0",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "server-timing": "^3.3.1"
   },
   "devDependencies": {
     "@babel/core": "^7.17.7",

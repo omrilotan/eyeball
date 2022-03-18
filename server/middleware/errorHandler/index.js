@@ -23,4 +23,5 @@ export function errorHandler (error, req, res, next) {
   </body>
 </html>`
   )
+  next(error)
 }
