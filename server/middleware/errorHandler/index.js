@@ -1,8 +1,8 @@
 import { logger } from '../../logger/index.js'
 
 export function errorHandler (error, req, res, next) {
-  const id = req.get('x-request-id');
-  logger.error(error, { id });
+  const id = req.get('x-request-id')
+  logger.error(error, { id })
   res.headersSent || res.append(
     'Connection', 'close'
   ).status(

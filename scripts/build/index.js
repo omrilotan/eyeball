@@ -1,34 +1,49 @@
 #!/usr/bin/env node
 
-import babel from '@babel/core'
+import esbuild from 'esbuild'
 import path from 'path'
 import fs from 'fs/promises'
 import { findFiles } from './findFiles/index.js'
 import { logger } from '../../server/logger/index.js'
 
-build()
+transpile({ from: 'src/views', to: 'dist/views' })
 
-async function build () {
+async function transpile ({ from, to } = {}) {
+  const pattern = /\.jsx?$/
   const files = await findFiles({
     file: path.join(process.cwd(), 'src'),
-    pattern: /\.jsx$/
+    pattern
   })
   let count = 0
   for (const file of files) {
-    const { code } = await babel.transformFileAsync(
-      file, {
-        plugins: [
-          ['@babel/transform-react-jsx']
-        ]
+    const content = await fs.readFile(file, 'utf8')
+    const { code, map } = await esbuild.transform(content, {
+      format: 'esm',
+      loader: 'jsx',
+      treeShaking: true,
+      sourcemap: true
+    })
+
+    const destination = file.replace(from, to).replace(pattern, '.js')
+    const output = [code, `//# sourceMappingURL=${path.basename(destination)}.map`].join('\n')
+    const mapDestination = [destination, 'map'].join('.')
+    const pairs = [
+      [destination, output],
+      [mapDestination, map]
+    ]
+
+    let same = true
+    for (const [destination, content] of pairs) {
+      if (await readFile(destination) !== content) {
+        same = false
       }
-    )
-    const destination = file.replace('src/views', 'dist/views').replace(/\.jsx$/, '.js')
-    const existing = await readFile(destination)
-    if (existing === code) {
-      continue
     }
+
+    if (same) continue
     await fs.mkdir(path.dirname(destination), { recursive: true })
-    await fs.writeFile(destination, code)
+    await Promise.all(pairs.map(
+      args => fs.writeFile(...args)
+    ))
     count++
   }
   count && logger.info(`${count} files prepared`)

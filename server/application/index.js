@@ -1,8 +1,12 @@
 import express from 'express'
+import parsers from 'body-parser'
 import serverTiming from 'server-timing'
 import { router } from '../router/index.js'
 import { errorHandler } from '../middleware/errorHandler/index.js'
 import { trafficLogger } from '../middleware/trafficLogger/index.js'
+import { REQUEST_BODY_LIMIT as limit } from '../configuration/index.js'
+
+const { json, text, urlencoded } = parsers
 
 export function application (props = {}) {
   const app = express()
@@ -20,7 +24,20 @@ export function application (props = {}) {
     ([key, value]) => app.set(key, value)
   )
 
-  app.use(serverTiming({ name: 'app', description: 'Application Response Time' }))
+  app
+    .use(serverTiming({ name: 'app', description: 'Application Response Time' }))
+    .use(json({
+      limit,
+      type: ['application/json', 'application/csp-report', 'application/reports+json']
+    }))
+    .use(text({ limit }))
+    .use(urlencoded({ extended: true }))
 
-  return router(app).use(errorHandler).use(trafficLogger)
+  router(app)
+
+  app
+    .use(errorHandler)
+    .use(trafficLogger)
+
+  return app
 }
