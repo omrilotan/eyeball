@@ -6,29 +6,43 @@ import fs from 'fs/promises'
 import { findFiles } from './findFiles/index.js'
 import { logger } from '../../server/logger/index.js'
 
-build()
+transpile({ from: 'src/views', to: 'dist/views' })
 
-async function build () {
+async function transpile ({ from, to } = {}) {
+  const pattern = /\.jsx?$/
   const files = await findFiles({
     file: path.join(process.cwd(), 'src'),
-    pattern: /\.jsx$/
+    pattern
   })
   let count = 0
   for (const file of files) {
-    const { code } = await babel.transformFileAsync(
-      file, {
+    const { code, map } = await babel.transformFileAsync(
+      file,
+      {
         plugins: [
           ['@babel/transform-react-jsx']
-        ]
+        ],
+        sourceMaps: true,
       }
     )
-    const destination = file.replace('src/views', 'dist/views').replace(/\.jsx$/, '.js')
+    const destination = file.replace(from, to).replace(pattern, '.js')
     const existing = await readFile(destination)
     if (existing === code) {
       continue
     }
     await fs.mkdir(path.dirname(destination), { recursive: true })
-    await fs.writeFile(destination, code)
+    await Promise.all([
+      [
+        destination,
+        [ code, `//# sourceMappingURL=${path.basename(destination)}.map` ].join('\n')
+      ],
+      [
+        [ destination, 'map' ].join('.'),
+        JSON.stringify(map)
+      ]
+    ].map(
+      args => fs.writeFile(...args)
+    ))
     count++
   }
   count && logger.info(`${count} files prepared`)

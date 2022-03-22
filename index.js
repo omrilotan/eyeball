@@ -1,8 +1,23 @@
-import dotenv from 'dotenv'
 import { logger } from './server/logger/index.js'
-dotenv.config()
+import { PORT } from './server/configuration/index.js'
 
-const { PORT = '3000' } = process.env
+['stdout', 'stderr'].forEach(type => {
+  const stream = process[type].write.bind(process[type])
+  process[type].write = (...args) => {
+    try {
+      const [first] = args
+      if (typeof first === 'string' && first.startsWith('{')) {
+        return stream(...args)
+      }
+      return stream(JSON.stringify({
+        log: args.join(', '),
+        level: type === 'stdout' ? 'info' : 'error'
+      }))
+    } catch (error) {
+      return stream(...args)
+    }
+  }
+})
 
 main()
 async function main () {
