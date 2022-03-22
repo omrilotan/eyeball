@@ -1,3 +1,4 @@
+import path from 'path'
 import express from 'express'
 import parsers from 'body-parser'
 import serverTiming from 'server-timing'
@@ -32,6 +33,18 @@ export function application (props = {}) {
     }))
     .use(text({ limit }))
     .use(urlencoded({ extended: true }))
+  app.use(express.static('public', {
+    dotfiles: 'ignore',
+    etag: false,
+    index: false,
+    setHeaders: (res, path) => {
+      if (res.headersSent) {
+        return
+      }
+      res.set('Access-Control-Allow-Credentials', 'true')
+      path.extname(path).match(/\.(ico|webmanifest)/) && res.set('Cache-Control', 'public, max-age=3600')
+    }
+  }))
 
   router(app)
 

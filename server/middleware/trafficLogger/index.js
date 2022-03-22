@@ -12,12 +12,12 @@ const levelMap = {
 export function trafficLogger (req, res, next) {
   const logLevel = levelMap[Math.floor(res.statusCode / 100)]
   const record = {
-    message: 'traffic log',
+    subsystemname: 'TRAFFIC_LOG',
+    message: 'Page requested',
     method: req.method,
     status: res.statusCode,
     path: req.path,
-    user_agent: req.get('user-agent'),
-    headers: res.getHeaders()
+    user_agent: req.get('user-agent')
   }
 
   logger[logLevel](record)
