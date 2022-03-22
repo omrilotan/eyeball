@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import babel from '@babel/core'
+import esbuild from 'esbuild'
 import path from 'path'
 import fs from 'fs/promises'
 import { findFiles } from './findFiles/index.js'
@@ -16,31 +16,32 @@ async function transpile ({ from, to } = {}) {
   })
   let count = 0
   for (const file of files) {
-    const { code, map } = await babel.transformFileAsync(
-      file,
-      {
-        plugins: [
-          ['@babel/transform-react-jsx']
-        ],
-        sourceMaps: true,
-      }
-    )
+    const content = await fs.readFile(file, 'utf8')
+    const { code, map } = await esbuild.transform(content, {
+      format: 'esm',
+      loader: 'jsx',
+      treeShaking: true,
+      sourcemap: true
+    })
+
     const destination = file.replace(from, to).replace(pattern, '.js')
-    const existing = await readFile(destination)
-    if (existing === code) {
-      continue
+    const output = [code, `//# sourceMappingURL=${path.basename(destination)}.map`].join('\n')
+    const mapDestination = [destination, 'map'].join('.')
+    const pairs = [
+      [destination, output],
+      [mapDestination, map]
+    ]
+
+    let same = true
+    for (const [destination, content] of pairs) {
+      if (await readFile(destination) !== content) {
+        same = false
+      }
     }
+
+    if (same) continue
     await fs.mkdir(path.dirname(destination), { recursive: true })
-    await Promise.all([
-      [
-        destination,
-        [ code, `//# sourceMappingURL=${path.basename(destination)}.map` ].join('\n')
-      ],
-      [
-        [ destination, 'map' ].join('.'),
-        JSON.stringify(map)
-      ]
-    ].map(
+    await Promise.all(pairs.map(
       args => fs.writeFile(...args)
     ))
     count++

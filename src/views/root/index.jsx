@@ -11,7 +11,7 @@ export function App () {
         <hr />
         <p style={{ textAlign: 'center' }}>cloudflare-nginx</p>
       </div>
-      <script dangerouslySetInnerHTML={{__html: `navigator.sendBeacon('/v1/relay', '{"logs":[{"message":"Hello, Page"}]}')`}}></script>
+      <script dangerouslySetInnerHTML={{ __html: 'navigator.sendBeacon(\'/v1/relay\', \'{"logs":[{"message":"Hello, Page"}]}\')' }} />
     </html>
   )
 }
