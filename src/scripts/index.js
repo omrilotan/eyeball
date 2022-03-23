@@ -1,0 +1,1 @@
+import './speed/index.js'

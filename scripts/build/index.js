@@ -1,20 +1,52 @@
 #!/usr/bin/env node
 
-import esbuild from 'esbuild'
 import path from 'path'
 import fs from 'fs/promises'
+import esbuild from 'esbuild'
+import sass from 'node-sass'
 import { findFiles } from './findFiles/index.js'
 import { logger } from '../../server/logger/index.js'
 
-transpile({ from: 'src/views', to: 'dist/views' })
+scripts({ from: 'src', to: 'dist' })
+styles({ from: 'src', to: 'dist' })
 
-async function transpile ({ from, to } = {}) {
-  const pattern = /\.jsx?$/
+async function styles ({ from, to } = {}) {
+  const pattern = /\.s?css$/
   const files = await findFiles({
-    file: path.join(process.cwd(), 'src'),
+    file: path.join(process.cwd(), from),
     pattern
   })
-  let count = 0
+  for (const file of files) {
+    const content = await sassRender(file)
+    const destination = file.replace(from, to).replace(pattern, '.css')
+    if (await readFile(destination) === content) {
+      continue
+    }
+    await fs.mkdir(path.dirname(destination), { recursive: true })
+    await fs.writeFile(destination, content)
+  }
+}
+
+const sassRender = file => new Promise(
+  (resolve, reject) => {
+    sass.render(
+      {
+        file
+        // outputStyle: 'compressed'
+      },
+      (err, result) => err
+        ? reject(err)
+        : resolve(result.css.toString())
+    )
+  }
+)
+
+async function scripts ({ from, to } = {}) {
+  const pattern = /\.jsx?$/
+  const files = await findFiles({
+    file: path.join(process.cwd(), from),
+    pattern
+  })
   for (const file of files) {
     const content = await fs.readFile(file, 'utf8')
     const { code, map } = await esbuild.transform(content, {
@@ -44,9 +76,7 @@ async function transpile ({ from, to } = {}) {
     await Promise.all(pairs.map(
       args => fs.writeFile(...args)
     ))
-    count++
   }
-  count && logger.info(`${count} files prepared`)
 }
 
 async function readFile (file) {

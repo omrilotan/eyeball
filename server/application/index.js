@@ -8,6 +8,7 @@ import { trafficLogger } from '../middleware/trafficLogger/index.js'
 import { REQUEST_BODY_LIMIT as limit } from '../configuration/index.js'
 
 const { json, text, urlencoded } = parsers
+const { extname } = path
 
 export function application (props = {}) {
   const app = express()
@@ -33,7 +34,8 @@ export function application (props = {}) {
     }))
     .use(text({ limit }))
     .use(urlencoded({ extended: true }))
-  app.use(express.static('public', {
+
+  const staticOptions = {
     dotfiles: 'ignore',
     etag: false,
     index: false,
@@ -42,9 +44,13 @@ export function application (props = {}) {
         return
       }
       res.set('Access-Control-Allow-Credentials', 'true')
-      path.extname(path).match(/\.(ico|webmanifest)/) && res.set('Cache-Control', 'public, max-age=3600')
+      extname(path).match(/\.(ico|webmanifest)/) && res.set('Cache-Control', 'public, max-age=3600')
     }
-  }))
+  }
+
+  app.use(express.static('public', staticOptions))
+  app.use(express.static('dist/scripts', staticOptions))
+  app.use(express.static('dist/styles', staticOptions))
 
   router(app)
 

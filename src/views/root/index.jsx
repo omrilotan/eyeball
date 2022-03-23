@@ -1,17 +1,18 @@
 import React from 'react'
+import { Head } from '../components/head/index.js'
 
 export function App () {
+  const title = '403 Forbidden'
+
   return (
     <html>
-      <head>
-        <title>403 Forbidden</title>
-      </head>
-      <div>
+      {Head({ title, styles: false })}
+      <body>
         <h1 style={{ textAlign: 'center' }}>403 Forbidden</h1>
         <hr />
         <p style={{ textAlign: 'center' }}>cloudflare-nginx</p>
-      </div>
-      <script dangerouslySetInnerHTML={{ __html: 'navigator.sendBeacon(\'/v1/relay\', \'{"logs":[{"message":"Hello, Page"}]}\')' }} />
+        <script dangerouslySetInnerHTML={{ __html: 'navigator.sendBeacon(\'/relay\', \'{"logs":[{"classification":"PAGE_VIEW","message":"root"}]}\')' }} />
+      </body>
     </html>
   )
 }

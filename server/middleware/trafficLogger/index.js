@@ -12,12 +12,11 @@ const levelMap = {
 export function trafficLogger (req, res, next) {
   const logLevel = levelMap[Math.floor(res.statusCode / 100)]
   const record = {
-    subsystemname: 'TRAFFIC_LOG',
-    message: 'Page requested',
-    method: req.method,
+    classification: 'TRAFFIC_LOG',
+    message: [req.method, req.path].join(' '),
     status: res.statusCode,
-    path: req.path,
-    user_agent: req.get('user-agent')
+    user_agent: req.get('user-agent'),
+    timeZone: req.get('cloudflare-timezone')
   }
 
   logger[logLevel](record)

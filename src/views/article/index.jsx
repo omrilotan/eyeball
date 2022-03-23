@@ -1,17 +1,20 @@
 import React from 'react'
+import { Image } from '../components/image/index.js'
 
-export class Page extends React.Component {
+export class Article extends React.Component {
   render () {
     return (
-      <div>
-        <h1 style={{ textAlign: 'center' }}>{this.props.title}</h1>
+      <main>
+        <header>👟 Last Lap</header>
+        <h1>{this.props.title}</h1>
         <hr />
-        <figure style={{ textAlign: 'center' }}>
-          <img src='https://picsum.photos/800/450' />
+        <figure>
+          {Image(this.props)}
           <figcaption>{this.props.message}</figcaption>
         </figure>
-        <script dangerouslySetInnerHTML={{ __html: 'navigator.sendBeacon(\'/v1/relay\', \'{"logs":[{"message":"Hello, Page"}]}\')' }} />
-      </div>
+        <script dangerouslySetInnerHTML={{ __html: 'navigator.sendBeacon(\'/relay\', \'{"logs":[{"classification":"PAGE_VIEW","message":"article"}]}\')' }} />
+        <script src='index.js' type='module' />
+      </main>
     )
   }
 }

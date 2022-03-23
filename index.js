@@ -1,8 +1,8 @@
 import { logger } from './server/logger/index.js'
 import { PORT } from './server/configuration/index.js'
 
-process.on('unhandledRejection', error => logger.error(error));
-process.on('uncaughtException', error => logger.error(error));
+process.on('unhandledRejection', error => logger.error(error, { node: process.version }))
+process.on('uncaughtException', error => logger.error(error, { node: process.version }));
 
 ['stdout', 'stderr'].forEach(type => {
   const stream = process[type].write.bind(process[type])
@@ -15,7 +15,7 @@ process.on('uncaughtException', error => logger.error(error));
       return stream(JSON.stringify({
         log: args.join(', '),
         level: type === 'stdout' ? 'info' : 'error'
-      }))
+      }) + '\n')
     } catch (error) {
       return stream(...args)
     }

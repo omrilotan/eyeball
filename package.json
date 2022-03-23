@@ -25,6 +25,7 @@
     "format": "standard"
   },
   "dependencies": {
+    "@lets/wait": "^2.0.2",
     "consigliere": "^0.2.0",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
@@ -33,6 +34,7 @@
   },
   "devDependencies": {
     "esbuild": "^0.14.27",
+    "node-sass": "^7.0.1",
     "standard": "^16.0.4"
   }
 }
